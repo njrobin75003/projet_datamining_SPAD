@@ -8,35 +8,37 @@ source("Globals.R")
 SPAD_WORKSHEET_FONT <- "Tahoma"
 
 #------------------------------------------------------------------------------------------------
-# Create an Excel Workbook
+# Workbook definition
 #------------------------------------------------------------------------------------------------
-workbook <- createWorkbook(type="xlsx")
+workbook1 <- createWorkbook(type="xlsx")
+workbook2 <- createWorkbook(type="xlsx")
+workbook3 <- createWorkbook(type="xlsx")
 
 #------------------------------------------------------------------------------------------------
 # Worksheet Cell Styles
 #------------------------------------------------------------------------------------------------
 
 # SPAD-like Worksheet Title Style - TAHOMA 16 bold
-SPAD_WORKSHEET_TITLE_STYLE <- CellStyle(workbook) + Font(workbook, name = SPAD_WORKSHEET_FONT, heightInPoints=16)
+SPAD_WORKSHEET_TITLE_STYLE <- CellStyle(workbook1) + Font(workbook1, name = SPAD_WORKSHEET_FONT, heightInPoints=16)
 
 # SPAD-like Worksheet Header Style - TAHOMA 11 bold
-SPAD_TABLE_HEADER_STYLE <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=11, isBold=TRUE)
+SPAD_TABLE_HEADER_STYLE <- CellStyle(workbook1) + Font(workbook1,  name = SPAD_WORKSHEET_FONT, heightInPoints=11, isBold=TRUE)
 
 # SPAD-like Table Header Style - TAHOMA 10 bold
-SPAD_TABLE_TITLE_STYLE <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10, isBold=TRUE) +
+SPAD_TABLE_TITLE_STYLE <- CellStyle(workbook1) + Font(workbook1,  name = SPAD_WORKSHEET_FONT, heightInPoints=10, isBold=TRUE) +
   Fill(foregroundColor="lightgray", backgroundColor="white", pattern="SOLID_FOREGROUND") +
   Alignment(wrapText=TRUE, horizontal="ALIGN_CENTER") +
   Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
          pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN"))
 
 # SPAD-like Table Cell Style - TAHOMA 10 bold - ALIGN_LEFT
-SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
+SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- CellStyle(workbook1) + Font(workbook1,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
   Alignment(wrapText=TRUE, horizontal="ALIGN_LEFT") +
   Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
          pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN")) 
 
 # SPAD-like Table Cell Style - TAHOMA 10 bold - ALIGN_RIGHT
-SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
+SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- CellStyle(workbook1) + Font(workbook1,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
   Alignment(wrapText=TRUE, horizontal="ALIGN_RIGHT") +
   Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
          pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN")) 
@@ -44,6 +46,61 @@ SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- CellStyle(workbook) + Font(workbook,  name 
 #------------------------------------------------------------------------------------------------
 # Fonctions
 #------------------------------------------------------------------------------------------------
+
+update_SPAD_WORKSHEET_TITLE_STYLE <- function(workbook) {
+  
+  # SPAD-like Worksheet Title Style - TAHOMA 16 bold
+  SPAD_WORKSHEET_TITLE_STYLE <- CellStyle(workbook) + Font(workbook, name = SPAD_WORKSHEET_FONT, heightInPoints=16)
+  
+  return(SPAD_WORKSHEET_TITLE_STYLE)
+  
+}
+
+update_SPAD_TABLE_HEADER_STYLE <- function(workbook) {
+  
+  # SPAD-like Worksheet Header Style - TAHOMA 11 bold
+  SPAD_TABLE_HEADER_STYLE <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=11, isBold=TRUE)
+
+  return(SPAD_TABLE_HEADER_STYLE)
+  
+}
+
+update_SPAD_TABLE_TITLE_STYLE <- function(workbook) {
+  
+  # SPAD-like Table Header Style - TAHOMA 10 bold
+  SPAD_TABLE_TITLE_STYLE <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10, isBold=TRUE) +
+    Fill(foregroundColor="lightgray", backgroundColor="white", pattern="SOLID_FOREGROUND") +
+    Alignment(wrapText=TRUE, horizontal="ALIGN_CENTER") +
+    Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
+           pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN"))
+  
+  return(SPAD_TABLE_TITLE_STYLE)
+  
+}
+
+update_SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- function(workbook) {
+  
+  # SPAD-like Table Cell Style - TAHOMA 10 bold - ALIGN_LEFT
+  SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
+    Alignment(wrapText=TRUE, horizontal="ALIGN_LEFT") +
+    Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
+           pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN")) 
+  
+  return(SPAD_TABLE_CELL_STYLE_ALIGN_LEFT)
+  
+}
+
+update_SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- function(workbook) {
+  
+  # SPAD-like Table Cell Style - TAHOMA 10 bold - ALIGN_RIGHT
+  SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- CellStyle(workbook) + Font(workbook,  name = SPAD_WORKSHEET_FONT, heightInPoints=10) +
+    Alignment(wrapText=TRUE, horizontal="ALIGN_RIGHT") +
+    Border(color="black", position=c("TOP", "BOTTOM", "LEFT", "RIGHT"), 
+           pen=c("BORDER_THIN", "BORDER_THIN","BORDER_THIN", "BORDER_THIN")) 
+  
+  return(SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT)
+  
+}
 
 # Function that writes the content of a single cell into the selected sheet
 xlsx.writeToCell<-function(sheet, rowIndex, columnIndex=1, cellValue, cellStyle){

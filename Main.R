@@ -11,7 +11,7 @@ fileToAnalyze <- getDataFilePath()
   
 # Import the data file into a table.
 if (strEndsWith(fileToAnalyze, "xls") == TRUE) {
-  table_to_analyze <- read.xlsx(fileToAnalyze, sheetIndex=1, header=TRUE, stringsAsFactors=FALSE, encoding="UTF-8")
+  table_to_analyze <- read.xlsx(fileToAnalyze, sheetIndex=1, header=TRUE, stringsAsFactors=TRUE, encoding="UTF-8")
 }else{
   table_to_analyze <- fread(fileToAnalyze, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
   table_to_analyze <- as.data.frame(table_to_analyze)
@@ -21,19 +21,26 @@ if (strEndsWith(fileToAnalyze, "xls") == TRUE) {
 # Step 1 - Write descriptives statistisques
 # --------------------------------------------------------------------------------------------
 
+SPAD_WORKSHEET_TITLE_STYLE <- update_SPAD_WORKSHEET_TITLE_STYLE(workbook1)
+SPAD_TABLE_HEADER_STYLE <- update_SPAD_TABLE_HEADER_STYLE(workbook1)
+SPAD_TABLE_TITLE_STYLE <- update_SPAD_TABLE_TITLE_STYLE(workbook1)
+SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- update_SPAD_TABLE_CELL_STYLE_ALIGN_LEFT(workbook1)
+SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- update_SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT(workbook1)
+
 # Add the first Excel spreadsheet in order to export the statistics of the discrete variables.
-sheet1 <- xlsx::createSheet(workbook, sheetName = "Tris à plats")
+sheet1 <- xlsx::createSheet(workbook1, sheetName = "Tris à plats")
 
 # Export the statistics of the discrete variables.
 get_tris_a_plat(sheet1, table_to_analyze)
 
 # Add the second Excel spreadsheet in order to export the statistics of the continous variables.
-sheet2 <- xlsx::createSheet(workbook, sheetName = "Variables continues")
+sheet2 <- xlsx::createSheet(workbook1, sheetName = "Variables continues")
 
 # Export the statistics of the continous variables.
 score <- get_variables_continues(sheet2, table_to_analyze)
 
-xlsx::saveWorkbook(workbook, "Statistiques descriptives.xlsx")
+xlsx::saveWorkbook(workbook1, "Statistiques descriptives.xlsx")
+
 
 # DESCRIPTION DES VARIABLES QUALITATIVES
 
@@ -75,7 +82,7 @@ for (column_index in 1:number_of_selected_columns) {
   
   # The program will now look for the modalities of the selected column.
   column_element <- selected_colums[column_index]
-  column_value <- which(colnames(table_to_analyze)==column_element )
+  column_value <- which(colnames(table_to_analyze_2)==column_element )
   
   new_group <- table_to_analyze_2 %>% 
     group_by_(column_element) %>% 
@@ -100,8 +107,49 @@ for (column_index in 1:number_of_selected_columns) {
   
   for (modality_index in 1:number_of_selected_modalities) {
     selected_pattern <- selected_modalites[modality_index]
+    colnames(table_to_analyze_2)[column_value] <- paste0(column_element, " regroupée")
     table_to_analyze_2 <- replace_modality_in_table(table_to_analyze_2, column_value, selected_pattern, grouped_modality)
   }
+}
+
+reduced_table <- NA
+reduced_table_regroupee <- NA
+for (reduced_table_column_index in 1:number_of_selected_columns) {
+  
+  column_element <- selected_colums[reduced_table_column_index]
+  column_value <- which(colnames(table_to_analyze)==column_element )
+  
+  new_reduced_table <-  data.frame(table_to_analyze[,column_value], stringsAsFactors = FALSE)
+  new_reduced_table_regroupee <-  data.frame(table_to_analyze_2[,column_value], stringsAsFactors = FALSE)
+  
+  reduced_table <-  cbind(reduced_table, new_reduced_table)
+  index_of_column_to_be_renamed <- reduced_table_column_index + 1
+  colnames(reduced_table)[index_of_column_to_be_renamed] <- colnames(table_to_analyze)[column_value]
+  
+  reduced_table_regroupee <-  cbind(reduced_table_regroupee, new_reduced_table_regroupee)
+  index_of_column_to_be_renamed <- reduced_table_column_index + 1
+  colnames(reduced_table_regroupee)[index_of_column_to_be_renamed] <- colnames(table_to_analyze_2)[column_value]
+  
+}
+
+final_reduced_table <- cbind(reduced_table, reduced_table_regroupee)
+
+index_test <- 1
+longueur_table <- length(final_reduced_table)
+
+while ( index_test <= longueur_table ) {
+  
+  sum1 <- sum(is.na(final_reduced_table[,index_test]))
+  sum2 <- nrow(final_reduced_table)
+
+  if ( sum1 == sum2 ) {
+    final_reduced_table <- final_reduced_table[,-c(index_test)]
+    longueur_table <- longueur_table - 1
+    index_test <- index_test - 1
+  }
+  
+  index_test <- index_test + 1
+  
 }
 
 # #Regroupement de modalites sur les variables situation_familiale et domiciliation_de_lepargne
@@ -111,19 +159,24 @@ for (column_index in 1:number_of_selected_columns) {
 #                                         "marié" = "marié",
 #                                         "veuf" = "divorcé/veuf")
 # 
-# base_credit$Domiciliation.de.l.épargne<-recode(table_to_analyze$Domiciliation.de.l.épargne,
+# table_to_analyze$Domiciliation.de.l.épargne<-recode(table_to_analyze$Domiciliation.de.l.épargne,
 #                                               "moins de 10K épargne"="moins de 10K épargne", "pas d'épargne"="pas d'épargne",
 #                                               "de 10 à 100K épargne"="plus de 10K épargne", "plus de 100K épargne"="plus de 10K épargne")
 
 
+SPAD_WORKSHEET_TITLE_STYLE <- update_SPAD_WORKSHEET_TITLE_STYLE(workbook2)
+SPAD_TABLE_HEADER_STYLE <- update_SPAD_TABLE_HEADER_STYLE(workbook2)
+SPAD_TABLE_TITLE_STYLE <- update_SPAD_TABLE_TITLE_STYLE(workbook2)
+SPAD_TABLE_CELL_STYLE_ALIGN_LEFT <- update_SPAD_TABLE_CELL_STYLE_ALIGN_LEFT(workbook2)
+SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT <- update_SPAD_TABLE_CELL_STYLE_ALIGN_RIGHT(workbook2)
 
 # Add the first Excel spreadsheet in order to export the statistics of the discrete variables.
-sheet1 <- xlsx::createSheet(workbook, sheetName = "Tris à plats")
+sheet1 <- xlsx::createSheet(workbook2, sheetName = "Tris à plats")
 
 # Export the statistics of the discrete variables.
-get_tris_a_plat(sheet1, table_to_analyze)
+get_tris_a_plat(sheet1, final_reduced_table)
 
-xlsx::saveWorkbook(workbook, "Regroupement des Modalités.xlsx")
+xlsx::saveWorkbook(workbook2, "Regroupement des modalités.xlsx")
 
 # --------------------------------------------------------------------------------------------
 # Step 3 - Logistique Regression
@@ -132,26 +185,36 @@ xlsx::saveWorkbook(workbook, "Regroupement des Modalités.xlsx")
 #REGRESSION LOGISTIQUE SUR LA NOUVELLE BASE
 #Discrétisation de la variable à expliquer
 
-base_credit$Type.de.client<- recode(base_credit$Type.de.client, "Bon client"= 1,
+table_to_analyze$Type.de.client<- recode(table_to_analyze$Type.de.client, "Bon client"= 1,
                                     "Mauvais client"= 0)
-#On cree nos echantillons de test et d'apprentissage
-ind <- sample(2, nrow(base_credit), replace=T, prob=c(0.75,0.25)) tdata<- base_credit[ind==1,] # training = 75%
-vdata<- base_credit[ind==2,] #validation = 25%
-#choix des modalités de reference
-base_credit$Age.du.client <- relevel(base_credit$Age.du.client, ref = "moins de 23 ans")
-base_credit$Situation.familiale <- relevel(base_credit$Situation.familiale, ref = "divorcé/veuf")
-base_credit$Ancienneté <- relevel(base_credit$Ancienneté, ref = "anc. 1 an ou moins")
-base_credit$Domiciliation.du.salaire <- relevel(base_credit$Domiciliation.du.salaire, ref = "Non domicilié")
-base_credit$Domiciliation.de.l.épargne <- relevel(base_credit$Domiciliation.de.l.épargne, ref = "pas d'épargne")
-base_credit$Profession <- relevel(base_credit$Profession, ref = "cadre") base_credit$Moyenne.encours <- relevel(base_credit$Moyenne.encours, ref = "plus de 5 K encours")
-base_credit$Moyenne.des.mouvements <- relevel(base_credit$Moyenne.des.mouvements, ref = "de 10 à 30K mouvt")
-base_credit$Cumul.des.débits <- relevel(base_credit$Cumul.des.débits, ref = "plus de 100 débits")
-base_credit$Autorisation.de.découvert <- relevel(base_credit$Autorisation.de.découvert, ref = "découvert autorisé")
-base_credit$Interdiction.de.chéquier <- relevel(base_credit$Interdiction.de.chéquier, ref = "chéquier interdit")
-#estimation du modèle avec les données d'entrainement fit.glm = glm(tdata[,2]~.,data=tdata[,3:15],family=binomial) summary(fit.glm)
-#prédiction avec les données de test
 
-score.glm = predict(fit.glm, vdata[,3:15],type="response") sum(as.numeric(predict.glm(fit.glm,vdata[,3:15],type="response")>=0.5)) class.glm=as.numeric(predict.glm(fit.glm,vdata[,3:15],type="response")>=0.5) table(class.glm,vdata[,2])
+#On cree nos echantillons de test et d'apprentissage
+ind <- sample(2, nrow(table_to_analyze), replace=T, prob=c(0.75,0.25))
+tdata<- table_to_analyze[ind==1,] # training = 75%
+vdata<- table_to_analyze[ind==2,] # validation = 25%
+
+#choix des modalités de reference
+table_to_analyze$Age.du.client <- relevel(table_to_analyze$Age.du.client, ref = "moins de 23 ans")
+table_to_analyze$Situation.familiale <- relevel(table_to_analyze$Situation.familiale, ref = "divorcé/veuf")
+table_to_analyze$Ancienneté <- relevel(table_to_analyze$Ancienneté, ref = "anc. 1 an ou moins")
+table_to_analyze$Domiciliation.du.salaire <- relevel(table_to_analyze$Domiciliation.du.salaire, ref = "Non domicilié")
+table_to_analyze$Domiciliation.de.l.épargne <- relevel(table_to_analyze$Domiciliation.de.l.épargne, ref = "pas d'épargne")
+table_to_analyze$Profession <- relevel(table_to_analyze$Profession, ref = "cadre") 
+table_to_analyze$Moyenne.encours <- relevel(table_to_analyze$Moyenne.encours, ref = "plus de 5 K encours")
+table_to_analyze$Moyenne.des.mouvements <- relevel(table_to_analyze$Moyenne.des.mouvements, ref = "de 10 à 30K mouvt")
+table_to_analyze$Cumul.des.débits <- relevel(table_to_analyze$Cumul.des.débits, ref = "plus de 100 débits")
+table_to_analyze$Autorisation.de.découvert <- relevel(table_to_analyze$Autorisation.de.découvert, ref = "découvert autorisé")
+table_to_analyze$Interdiction.de.chéquier <- relevel(table_to_analyze$Interdiction.de.chéquier, ref = "chéquier interdit")
+
+#estimation du modèle avec les données d'entrainement
+fit.glm = glm(tdata[,2]~.,data=tdata[,3:15],family=binomial)
+summary(fit.glm)
+
+#prédiction avec les données de test
+score.glm = predict(fit.glm, vdata[,3:15],type="response") 
+sum(as.numeric(predict.glm(fit.glm,vdata[,3:15],type="response")>=0.5))
+class.glm=as.numeric(predict.glm(fit.glm,vdata[,3:15],type="response")>=0.5)
+table(class.glm,vdata[,2])
 sum( score.glm >= 0.5 & vdata[,2]==1)/sum(vdata[,2]==1)#proportion de bien classés (bon clients)
 sum( score.glm < 0.5 & vdata[,2]==0)/sum(vdata[,2]==0)#Proportion de bien classés (mauvais clients)
 sum( score.glm2 >= 0.5 & tdata[,2]==1)/sum(tdata[,2]==1)#proportion de bien classés (bon clients)
@@ -160,5 +223,7 @@ s=quantile(score.glm,probs=seq(0,1,0.01)) PVP = rep(0,length(s))
 PFP = rep(0,length(s))
 for (i in 1:length(s)){
   PVP[i]=sum(score.glm>=s[i]& vdata[,2]==1)/sum(vdata[,2]==1)
-  PFP[i]=sum( score.glm >=s[i] & vdata[,2]==0)/sum(vdata[,2]==0) }
+  PFP[i]=sum( score.glm >=s[i] & vdata[,2]==0)/sum(vdata[,2]==0)
+}
+
 plot(PFP,PVP,type="l",col="red")
