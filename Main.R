@@ -11,7 +11,7 @@ fileToAnalyze <- getDataFilePath()
   
 # Import the data file into a table.
 if (strEndsWith(fileToAnalyze, "xls") == TRUE) {
-  table_to_analyze <- read.xlsx(fileToAnalyze, sheetIndex=1, header=TRUE, stringsAsFactors=TRUE, encoding="UTF-8")
+  table_to_analyze <- read.xlsx(fileToAnalyze, sheetIndex=1, header=TRUE, stringsAsFactors=FALSE, encoding="UTF-8")
 }else{
   table_to_analyze <- fread(fileToAnalyze, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
   table_to_analyze <- as.data.frame(table_to_analyze)
